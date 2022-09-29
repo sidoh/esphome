@@ -1,0 +1,163 @@
+
+esphome:
+  name: $device_name
+  on_boot:
+    then:
+      # We don't set MS1 to LOW because it is on pin D4, which is tied to the internal LED.
+      # We set it to LOW in on_loop below when target and current positions differ.
+      - output.turn_off: a4988_ms1
+      - output.turn_off: a4988_ms2
+      - output.turn_off: a4988_ms3
+      - stepper.report_position:
+          id: blinds_stepper
+          position: !lambda return id(stepper_position);
+      - stepper.set_target:
+          id: blinds_stepper
+          target: !lambda return id(stepper_position);
+      - if: 
+          condition:
+            - lambda: 'return id(stepper_position) == 0;'
+          then: 
+            - cover.template.publish:
+                id: blinds
+                state: OPEN
+                current_operation: IDLE
+          else:
+            - cover.template.publish:
+                id: blinds
+                state: CLOSED
+                current_operation: IDLE
+  on_loop:
+    then:
+      - if:
+          condition:
+            - lambda: 'return id(blinds_stepper).current_position != id(blinds_stepper).target_position;'
+          then:
+            - output.turn_off: a4988_ms1
+          else:
+            - output.turn_on: a4988_ms1
+
+esp8266:
+  board: d1_mini
+  restore_from_flash: true
+
+preferences:
+  flash_write_interval: 0s
+
+globals:
+  - id: stepper_position
+    type: int
+    restore_value: true
+    initial_value: '0'
+  - id: end_position
+    type: int
+    restore_value: true
+    initial_value: '${end_position}'
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: $device_name
+    password: !secret fallback_ap_password
+
+web_server:
+  port: 80
+
+output:
+  - platform: gpio
+    id: a4988_ms1
+    pin: D4
+  - platform: gpio
+    id: a4988_ms2
+    pin: D5
+  - platform: gpio
+    id: a4988_ms3
+    pin: D6
+
+stepper:
+  - platform: a4988 
+    id: blinds_stepper
+    sleep_pin: D3
+    step_pin: D2
+    dir_pin: D1
+    max_speed: 800 steps/s
+
+cover:
+  - platform: template
+    id: blinds
+    device_class: blind
+    name: "${human_device_name}"
+    open_action:
+      - logger.log:
+          format: "OPEN called. Stepper position is set to: %d"
+          args: [ 'id(stepper_position)' ]
+      - stepper.set_target:
+          id: blinds_stepper
+          target: 0
+      - globals.set:
+          id: stepper_position
+          value: '0'
+    close_action:
+      - logger.log:
+          format: "CLOSE called. Stepper position is set to: %d"
+          args: [ 'id(stepper_position)' ]
+      - stepper.set_target:
+          id: blinds_stepper
+          target: !lambda return id(end_position);
+      - globals.set:
+          id: stepper_position
+          value: !lambda return id(end_position);
+    stop_action:
+      - stepper.set_target:
+          id: blinds_stepper
+          target: !lambda return id(blinds_stepper).current_position;
+      - globals.set:
+          id: stepper_position
+          value: !lambda return id(blinds_stepper).current_position;
+    optimistic: true
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  services:
+    - service: set_closed_position
+      then:
+        - stepper.report_position:
+            id: blinds_stepper
+            position: !lambda return id(end_position);
+        - stepper.set_target:
+            id: blinds_stepper
+            target: !lambda return id(end_position);
+        - globals.set:
+            id: stepper_position
+            value: !lambda return id(end_position);
+    - service: set_open_position
+      then:
+        - stepper.report_position:
+            id: blinds_stepper
+            position: 0
+        - stepper.set_target:
+            id: blinds_stepper
+            target: 0
+        - globals.set:
+            id: stepper_position
+            value: '0'
+    - service: control_stepper
+      variables:
+        target: int
+      then:
+        - stepper.set_target:
+            id: blinds_stepper
+            target: !lambda 'return target;'
+        - globals.set:
+            id: stepper_position
+            value: !lambda return target;
+
+ota:
