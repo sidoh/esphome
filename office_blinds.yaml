@@ -3,4 +3,4 @@ substitutions:
   human_device_name: Office Blinds
   end_position: '10000'
 
-<<: !include .blinds.yaml
+  <<: !include .blinds.yaml
