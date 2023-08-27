@@ -1,0 +1,29 @@
+substitutions:
+  device_name: kitty-fountain
+
+switch:
+  - platform: gpio
+    id: kitty_fountain
+    name: Kitty Fountain
+    pin:
+      number: D5
+
+binary_sensor:
+  - platform: gpio
+    name: Kitty Fountain Motion
+    pin:
+      number: D1
+      mode:
+        input: true
+    filters:
+      - delayed_off: 60s
+    on_press:
+      then:
+        - switch.turn_on:  kitty_fountain
+    on_release:
+      then:
+        - switch.turn_off: kitty_fountain
+
+mqtt:
+  <<: !include .mqtt.yaml
+<<: !include .common.yaml
