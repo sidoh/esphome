@@ -1,0 +1,42 @@
+substitutions:
+  device_name: ir-blaster-master
+  transmit_pin: D2
+
+<<: !include .ir_blaster.yaml
+
+button:
+  - platform: template
+    name: Standing Fan
+    on_press:
+      mqtt.publish_json:
+        topic: esphome/ir/send
+        payload: |-
+          root["protocol"] = "pronto";
+          root["data"] = "0000 006D 0018 0000 001D 0043 001E 0044 004D 0014 004D 0014 001C 0044 001C 0045 001C 0044 004D 0014 001C 0045 004C 0015 004D 0014 001C 0044 001C 0045 001C 0044 004D 0014 001C 0045 001C 0044 004C 0015 004D 0014 001B 0045 001B 0045 001C 0045 004D 0014 001C 0180";
+  - platform: template
+    name: Air Purifier
+    on_press:
+      mqtt.publish_json:
+        topic: esphome/ir/send
+        payload: |-
+          root["protocol"] = "pronto";
+          root["data"] = "0000 006D 0022 0000 015E 00AC 0017 0015 0016 0040 0017 0015 0016 0015 0016 0041 0016 0015 0017 0015 0016 0016 0016 0040 0017 0015 0016 0040 0017 0041 0016 0015 0016 0041 0016 0040 0017 0040 0017 0040 0017 0040 0017 0015 0016 0015 0016 0041 0016 0015 0016 0015 0016 0016 0016 0015 0016 0015 0016 0040 0017 0040 0017 0015 0016 0041 0016 0041 0016 0040 0017 0180";
+
+  - platform: template
+    name: TV Power
+    on_press:
+      mqtt.publish_json:
+        topic: esphome/ir/send
+        payload: |-
+          root["protocol"] = "pronto";
+          root["data"] = "0000 006D 000D 0000 005E 0015 0030 0015 0019 0015 0030 0015 0019 0015 0030 0015 0019 0015 0019 0015 0030 0015 0019 0015 0019 0015 0019 0015 0019 0180";
+          root["repeat_times"] = 2;
+
+  - platform: template
+    name: Air Conditioner
+    on_press:
+      mqtt.publish_json:
+        topic: esphome/ir/send
+        payload: |-
+          root["protocol"] = "pronto";
+          root["data"] = "0000 006D 0022 0000 0159 00AB 0017 003F 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 003F 0017 0014 0017 003F 0017 003F 0017 0014 0017 0014 0017 003F 0017 003E 0017 0014 0017 003F 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 003F 0017 0014 0017 003F 0017 003F 0017 003F 0017 003F 0017 003F 0017 003F 0017 0014 0017 0180";

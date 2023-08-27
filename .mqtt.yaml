@@ -1,0 +1,11 @@
+id: mqtt_client
+broker: 10.133.8.11
+username: !secret mqtt_username
+password: !secret mqtt_password
+topic_prefix: esphome/$device_name
+birth_message:
+  topic: esphome/$device_name/status
+  payload: online
+will_message:
+  topic: esphome/$device_name/status
+  payload: offline

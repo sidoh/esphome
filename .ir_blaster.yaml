@@ -1,0 +1,42 @@
+remote_transmitter:
+  id: transmitter
+  pin: $transmit_pin
+  carrier_duty_percent: 50%
+
+remote_receiver:
+  pin: D5
+  dump: all
+
+mqtt:
+  <<: !include .mqtt.yaml
+  on_json_message:
+    topic: esphome/ir/send
+    then:
+      - lambda: |-
+          ESP_LOGI("transmit_mqtt", "Received message on send topic");
+
+          auto protocol = x["protocol"];
+          auto call = id(transmitter).transmit();
+          
+          if (protocol == "raw") {
+          std::vector<int32_t> data;
+            JsonArrayConst sentData = x["data"];
+
+            for (JsonVariantConst d : sentData) {
+              data.push_back(d.as<int32_t>());
+              ESP_LOGI("transmit_mqtt", "Read value %d", d.as<int32_t>());
+            }
+
+            call.get_data()->set_data(data);
+          } else if (protocol == "pronto") {
+            ESP_LOGI("transmit_mqtt", "Received pronto message");
+
+            esphome::remote_base::ProntoData pData;
+            pData.data = x["data"].as<const char*>();
+            esphome::remote_base::ProntoProtocol().encode(call.get_data(), pData);
+          }
+
+          call.set_send_times(x.containsKey("repeat_times") ? x["repeat_times"] : 1);
+          call.perform();
+
+<<: !include .common.yaml
