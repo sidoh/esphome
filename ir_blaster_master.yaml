@@ -1,5 +1,5 @@
 substitutions:
-  device_name: ir-blaster-master
+  device_name: esp-ir-blaster-master
   transmit_pin: D2
 
 <<: !include .ir_blaster.yaml

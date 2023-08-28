@@ -1,5 +1,5 @@
 substitutions:
-  device_name: kitty-fountain
+  device_name: esp-fountain
 
 switch:
   - platform: gpio
@@ -15,14 +15,17 @@ binary_sensor:
       number: D1
       mode:
         input: true
-    filters:
-      - delayed_off: 60s
     on_press:
       then:
-        - switch.turn_on:  kitty_fountain
-    on_release:
-      then:
-        - switch.turn_off: kitty_fountain
+        - script.execute: turn_on_fountain
+
+script:
+  - id: turn_on_fountain
+    mode: restart
+    then:
+      - switch.turn_on: kitty_fountain
+      - delay: 60s
+      - switch.turn_off: kitty_fountain
 
 mqtt:
   <<: !include .mqtt.yaml

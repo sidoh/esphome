@@ -1,5 +1,5 @@
 substitutions:
-  device_name: ir-blaster-repeater1
+  device_name: esp-ir-blaster-repeater1
   transmit_pin: D1
 
 <<: !include .ir_blaster.yaml
