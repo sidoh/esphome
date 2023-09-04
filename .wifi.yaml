@@ -1,0 +1,17 @@
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: $device_name
+    password: !secret fallback_ap_password
+
+debug: 
+
+logger:
+  level: INFO
+
+web_server:
+  port: 80

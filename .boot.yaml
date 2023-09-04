@@ -1,0 +1,2 @@
+lambda: |-
+  WiFi.setPhyMode(WIFI_PHY_MODE_11B);

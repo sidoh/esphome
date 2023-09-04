@@ -1,8 +1,9 @@
-
 esphome:
   name: $device_name
   on_boot:
     then:
+      - <<: !include .boot.yaml
+
       # We don't set MS1 to LOW because it is on pin D4, which is tied to the internal LED.
       # We set it to LOW in on_loop below when target and current positions differ.
       - output.turn_off: a4988_ms1
@@ -37,6 +38,9 @@ esphome:
           else:
             - output.turn_on: a4988_ms1
 
+<<: !include .wifi.yaml
+<<: !include .ota.yaml
+
 esp8266:
   board: d1_mini
   restore_from_flash: true
@@ -53,18 +57,6 @@ globals:
     type: int
     restore_value: true
     initial_value: '${end_position}'
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: $device_name
-    password: !secret fallback_ap_password
-
-web_server:
-  port: 80
 
 output:
   - platform: gpio
@@ -121,8 +113,36 @@ cover:
 
 captive_portal:
 
-# Enable logging
-logger:
+mqtt:
+  <<: !include .mqtt.yaml
+
+button:
+  - platform: template
+    name: $human_device_name - Set Closed Position
+    on_press:
+      then:
+        - stepper.report_position:
+            id: blinds_stepper
+            position: !lambda return id(end_position);
+        - stepper.set_target:
+            id: blinds_stepper
+            target: !lambda return id(end_position);
+        - globals.set:
+            id: stepper_position
+            value: !lambda return id(end_position);
+  - platform: template
+    name: $human_device_name - Set Open Position
+    on_press:
+      then:
+        - stepper.report_position:
+            id: blinds_stepper
+            position: 0
+        - stepper.set_target:
+            id: blinds_stepper
+            target: 0
+        - globals.set:
+            id: stepper_position
+            value: '0'
 
 # Enable Home Assistant API
 api:
@@ -159,5 +179,3 @@ api:
         - globals.set:
             id: stepper_position
             value: !lambda return target;
-
-ota:

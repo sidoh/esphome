@@ -1,5 +1,5 @@
 substitutions:
-  device_name: living_room_blinds
+  device_name: esp-living-room-blinds
   human_device_name: Livingroom Blinds
   end_position: '10000'
 
