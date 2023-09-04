@@ -41,6 +41,9 @@ esphome:
 <<: !include .wifi.yaml
 <<: !include .ota.yaml
 
+mqtt:
+  <<: !include .mqtt.yaml
+
 esp8266:
   board: d1_mini
   restore_from_flash: true
@@ -113,9 +116,6 @@ cover:
 
 captive_portal:
 
-mqtt:
-  <<: !include .mqtt.yaml
-
 button:
   - platform: template
     name: $human_device_name - Set Closed Position
@@ -143,39 +143,3 @@ button:
         - globals.set:
             id: stepper_position
             value: '0'
-
-# Enable Home Assistant API
-api:
-  services:
-    - service: set_closed_position
-      then:
-        - stepper.report_position:
-            id: blinds_stepper
-            position: !lambda return id(end_position);
-        - stepper.set_target:
-            id: blinds_stepper
-            target: !lambda return id(end_position);
-        - globals.set:
-            id: stepper_position
-            value: !lambda return id(end_position);
-    - service: set_open_position
-      then:
-        - stepper.report_position:
-            id: blinds_stepper
-            position: 0
-        - stepper.set_target:
-            id: blinds_stepper
-            target: 0
-        - globals.set:
-            id: stepper_position
-            value: '0'
-    - service: control_stepper
-      variables:
-        target: int
-      then:
-        - stepper.set_target:
-            id: blinds_stepper
-            target: !lambda 'return target;'
-        - globals.set:
-            id: stepper_position
-            value: !lambda return target;
