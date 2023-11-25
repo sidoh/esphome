@@ -4,6 +4,14 @@ substitutions:
 
 <<: !include .ir_blaster.yaml
 
+dallas:
+  - pin: D4
+
+sensor:
+  - platform: dallas
+    address: 0x3302162221ffee28
+    name: 'Bedroom Thermometer'
+
 button:
   - platform: template
     name: Standing Fan

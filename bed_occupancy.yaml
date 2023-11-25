@@ -1,0 +1,37 @@
+substitutions:
+  device_name: esp-bed-occupancy
+
+mqtt:
+  <<: !include .mqtt.yaml
+
+dallas:
+  - pin: GPIO4
+
+sensor:
+  - platform: adc
+    id: bed_occupancy_reading_raw
+    pin: A0
+    name: "Bed Occupancy Reading (Raw)"
+    update_interval: 1s
+    raw: true
+    filters:
+      - delta: '10%'
+  - platform: dallas
+    address: 0x520216221e91ee28
+    name: 'Bedroom Thermometer'
+
+binary_sensor:
+  - platform: template
+    name: "Bed Occupancy"
+    device_class: occupancy
+    lambda: |-
+      if (id(bed_occupancy_reading_raw).state > 20) {
+        return true;
+      } else {
+        return false;
+      }
+    filters:
+      - delayed_on: 5s
+      - delayed_off: 5s
+
+<<: !include .common.yaml
