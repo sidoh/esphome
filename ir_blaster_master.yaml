@@ -49,3 +49,25 @@ button:
         payload: |-
           root["protocol"] = "pronto";
           root["data"] = "0000 006D 0022 0000 0159 00AB 0017 003F 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 003F 0017 0014 0017 003F 0017 003F 0017 0014 0017 0014 0017 003F 0017 003E 0017 0014 0017 003F 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 0014 0017 003F 0017 0014 0017 003F 0017 003F 0017 003F 0017 003F 0017 003F 0017 003F 0017 0014 0017 0180";
+
+  - platform: template
+    name: Air Conditioner - Temp Up
+    on_press:
+      mqtt.publish_json:
+        topic: esphome/ir/send
+        payload: |-
+          root["protocol"] = "nec";
+          root["address"] = 26241;
+          root["command"] = 31365;
+          root["repeats"] = 1;
+
+  - platform: template
+    name: Air Conditioner - Temp Down
+    on_press:
+      mqtt.publish_json:
+        topic: esphome/ir/send
+        payload: |-
+          root["protocol"] = "nec";
+          root["address"] = 26241;
+          root["command"] = 30090;
+          root["repeats"] = 1;
