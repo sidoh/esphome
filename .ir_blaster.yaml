@@ -21,7 +21,7 @@ mqtt:
           auto call = id(transmitter).transmit();
           
           if (protocol == "raw") {
-          std::vector<int32_t> data;
+            std::vector<int32_t> data;
             JsonArrayConst sentData = x["data"];
 
             for (JsonVariantConst d : sentData) {
@@ -36,6 +36,15 @@ mqtt:
             esphome::remote_base::ProntoData pData;
             pData.data = x["data"].as<const char*>();
             esphome::remote_base::ProntoProtocol().encode(call.get_data(), pData);
+          } else if (protocol == "nec") {
+            ESP_LOGI("transmit_mqtt", "Received NEC message");
+
+            esphome::remote_base::NECData data{
+              x["address"].as<uint16_t>(),
+              x["command"].as<uint16_t>(),
+              x["repeats"].as<uint16_t>(),
+            };
+            esphome::remote_base::NECProtocol().encode(call.get_data(), data);
           }
 
           call.set_send_times(x.containsKey("repeat_times") ? x["repeat_times"] : 1);
