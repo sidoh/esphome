@@ -4,9 +4,6 @@ substitutions:
 mqtt:
   <<: !include .mqtt.yaml
 
-dallas:
-  - pin: GPIO4
-
 sensor:
   - platform: adc
     id: bed_occupancy_reading_raw
@@ -16,22 +13,19 @@ sensor:
     raw: true
     filters:
       - delta: '10%'
-  - platform: dallas
-    address: 0x520216221e91ee28
-    name: 'Bedroom Thermometer'
 
 binary_sensor:
   - platform: template
     name: "Bed Occupancy"
     device_class: occupancy
     lambda: |-
-      if (id(bed_occupancy_reading_raw).state > 20) {
+      if (id(bed_occupancy_reading_raw).state > 25) {
         return true;
       } else {
         return false;
       }
     filters:
       - delayed_on: 5s
-      - delayed_off: 5s
+      - delayed_off: 30s
 
 <<: !include .common.yaml
