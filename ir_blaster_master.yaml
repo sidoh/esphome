@@ -59,7 +59,7 @@ button:
           root["protocol"] = "nec";
           root["address"] = 26241;
           root["command"] = 31365;
-          root["repeats"] = 1;
+          root["command_repeats"] = 1;
 
   - platform: template
     name: Air Conditioner - Temp Down
@@ -70,4 +70,4 @@ button:
           root["protocol"] = "nec";
           root["address"] = 26241;
           root["command"] = 30090;
-          root["repeats"] = 1;
+          root["command_repeats"] = 1;
