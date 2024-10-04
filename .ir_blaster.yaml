@@ -7,7 +7,37 @@ remote_receiver:
   pin: 
     number: D5
     inverted: true
-  dump: all
+    mode: INPUT_PULLUP
+  tolerance: 
+    type: percentage
+    value: 10
+  on_raw:
+    then:
+      - lambda: |-
+          id(mqtt_client).publish_json("esphome/ir/receive/raw", [=](JsonObject root) {
+            root["client"] = App.get_name();
+            JsonArray data = root.createNestedArray("payload");
+            for (int32_t v : x) {
+              data.add(v);
+            }
+          });
+  on_pronto:
+    then:
+      - lambda: |-
+          id(mqtt_client).publish_json("esphome/ir/receive/pronto", [=](JsonObject root) {
+            root["client"] = App.get_name();
+            root["payload"] = x.data;
+          });
+  on_nec:
+    then:
+      - lambda: |-
+          id(mqtt_client).publish_json("esphome/ir/receive/nec", [=](JsonObject root) {
+            root["client"] = App.get_name();
+            JsonObject payload = root.createNestedObject("payload");
+            payload["address"] = x.address;
+            payload["command"] = x.command;
+            payload["command_repeats"] = x.command_repeats;
+          });
 
 mqtt:
   <<: !include .mqtt.yaml
@@ -42,7 +72,7 @@ mqtt:
             esphome::remote_base::NECData data{
               x["address"].as<uint16_t>(),
               x["command"].as<uint16_t>(),
-              x["repeats"].as<uint16_t>(),
+              x["command_repeats"].as<uint16_t>(),
             };
             esphome::remote_base::NECProtocol().encode(call.get_data(), data);
           }
