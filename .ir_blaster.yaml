@@ -4,7 +4,9 @@ remote_transmitter:
   carrier_duty_percent: 50%
 
 remote_receiver:
-  pin: D5
+  pin: 
+    number: D5
+    inverted: true
   dump: all
 
 mqtt:

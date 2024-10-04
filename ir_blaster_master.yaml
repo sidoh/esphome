@@ -4,11 +4,12 @@ substitutions:
 
 <<: !include .ir_blaster.yaml
 
-dallas:
+one_wire:
   - pin: D4
+    platform: gpio
 
 sensor:
-  - platform: dallas
+  - platform: dallas_temp
     address: 0x3302162221ffee28
     name: 'Bedroom Thermometer'
 
