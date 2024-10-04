@@ -1,0 +1,6 @@
+substitutions:
+  device_name: esp-dining-room-w-blinds
+  human_device_name: Dining Room Blinds (West)
+  end_position: '10000'
+
+<<: !include .blinds.yaml
