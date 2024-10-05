@@ -8,9 +8,6 @@ remote_receiver:
     number: D5
     inverted: true
     mode: INPUT_PULLUP
-  tolerance: 
-    type: percentage
-    value: 10
   on_raw:
     then:
       - lambda: |-
@@ -75,6 +72,8 @@ mqtt:
               x["command_repeats"].as<uint16_t>(),
             };
             esphome::remote_base::NECProtocol().encode(call.get_data(), data);
+          } else {
+            ESP_LOGI("transmit_mqtt", "Received unknown protocol");
           }
 
           call.set_send_times(x.containsKey("repeat_times") ? x["repeat_times"] : 1);
