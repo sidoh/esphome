@@ -3,3 +3,7 @@ substitutions:
   transmit_pin: D1
 
 <<: !include .ir_blaster.yaml
+
+climate:
+  - platform: climate_ir_lg
+    name: "AC"
